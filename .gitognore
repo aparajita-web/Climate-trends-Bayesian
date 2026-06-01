@@ -1,0 +1,73 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*.so
+
+# ==========================
+# Jupyter Notebooks
+# ==========================
+.ipynb_checkpoints/
+
+# ==========================
+# macOS
+# ==========================
+.DS_Store
+
+# ==========================
+# Virtual Environments
+# ==========================
+venv/
+.env/
+.conda/
+
+# ==========================
+# Testing
+# ==========================
+.pytest_cache/
+.coverage
+
+# ==========================
+# Build Artifacts
+# ==========================
+build/
+dist/
+*.egg-info/
+
+# ==========================
+# IDEs
+# ==========================
+.vscode/
+.idea/
+
+# ==========================
+# Data Files
+# ==========================
+data/raw/*
+data/interim/*
+data/processed/*
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# ==========================
+# Figures and Plots
+# ==========================
+figures/*.png
+figures/*.pdf
+figures/*.jpg
+
+# ==========================
+# MCMC Chains and Outputs
+# ==========================
+chains/
+*.h5
+*.npz
+
+# ==========================
+# Logs
+# ==========================
+*.log

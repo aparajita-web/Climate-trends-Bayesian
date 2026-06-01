@@ -12,6 +12,7 @@ import os
 from typing import List, Optional, Union
 
 import xarray as xr
+import pandas as pd
 
 
 def load_single_file(
@@ -30,4 +31,30 @@ def load_single_file(
 
     return ds
 
+
+
+
+def dataset_to_series(ds, variable_name):
+    return ds[variable_name].to_dataframe().reset_index()
+
+def dataframe_to_parquet(df, output_file):
+    df.to_parquet(output_file, index=False);
+    print(f"Saved parquet file: {output_file}")
+
+
+
+def netcdf_to_parquet(ds, variable_name, output_file):
+
+    df = ds[variable_name].to_dataframe().reset_index()
+
+    if "valid_time" in df.columns:
+        df["valid_time"] = pd.to_datetime(df["valid_time"]).astype(str)
+
+    df.to_parquet(
+        output_file,
+        engine="pyarrow",
+        index=False
+    )
+
+    print(f"Saved parquet file: {output_file}")
 

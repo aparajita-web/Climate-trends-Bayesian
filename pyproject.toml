@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Climate_trends"
+version = "0.1.0"
+description = "Tools for analysing  warming trends in cities/specific regions using ERA5 data."
+readme = "README.md"
+requires-python = ">=3.11"
+
+authors = [{name = "Aparajita"}]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "xarray",
+    "matplotlib",
+    "statsmodels",
+    "emcee",
+    "arviz",
+    "netcdf4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+    
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
