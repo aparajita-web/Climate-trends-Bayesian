@@ -1,0 +1,11 @@
+city: Hanoi
+
+variable: 2m_temperature
+
+start_year: 1950
+end_year: 2026
+
+## Store area as [North, West, South, East]
+area: [21.3, 105.6, 20.8, 106.1]
+
+output_path: data/raw/era5_hanoi_t2m.nc

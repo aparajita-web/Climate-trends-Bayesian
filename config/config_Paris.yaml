@@ -1,0 +1,12 @@
+city: Paris
+
+variable: 2m_temperature
+
+start_year: 1950
+end_year: 2026
+
+## Store area as [North, West, South, East]
+area: [49.0, 2.0, 48.5, 2.5]
+
+
+output_path: data/raw/era5_paris_t2m.nc

@@ -4,7 +4,7 @@ from pathlib import Path
 import cdsapi
 
 
-def download_era5(variable, years, area, output_path):
+def download_era5(variable, years, area, output_path,overwrite=False):
     """
     Download ERA5 monthly averaged data for a given variable and area.
 
@@ -24,7 +24,7 @@ def download_era5(variable, years, area, output_path):
     output_path = Path(output_path)
 
     # --- Idempotency check ---
-    if output_path.exists():
+    if output_path.exists() and not overwrite:
         print(f"[SKIP] File already exists: {output_path}")
         return output_path
 

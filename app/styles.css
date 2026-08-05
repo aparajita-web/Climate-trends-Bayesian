@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ==========================================================
+   Global Font
+========================================================== */
+
+html,
+body,
+[class*="css"] {
+
+    font-family: "Inter", sans-serif;
+
+}
+
+/* ==========================================================
+   Main page
+========================================================== */
+
+.block-container{
+
+    max-width:1300px;
+
+    padding-top:2rem;
+
+    padding-left:3rem;
+
+    padding-right:3rem;
+}
+
+/* ==========================================================
+   Sidebar
+========================================================== */
+
+section[data-testid="stSidebar"]{
+
+    background:#0F766E;
+}
+
+/* Sidebar text */
+
+section[data-testid="stSidebar"] *{
+
+    color:white;
+}
+
+/* Selectbox */
+
+div[data-baseweb="select"]{
+
+    background:white;
+}
+
+/* Divider */
+
+hr{
+
+    margin-top:20px;
+    margin-bottom:20px;
+}
+

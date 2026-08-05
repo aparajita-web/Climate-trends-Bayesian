@@ -1,0 +1,11 @@
+city: Amsterdam
+
+variable: 2m_temperature
+
+start_year: 1950
+end_year: 2026
+
+## Store area as [North, West, South, East]
+area: [52.6, 4.6, 52.1, 5.1]
+
+output_path: data/raw/era5_amsterdam_t2m.nc

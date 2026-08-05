@@ -1,0 +1,11 @@
+city: Kolkata
+
+variable: 2m_temperature
+
+start_year: 1950
+end_year: 2026
+
+## Store area as [North, West, South, East]
+area: [22.8, 88.1, 22.3, 88.6]
+
+output_path: data/raw/era5_kolkata_t2m.nc

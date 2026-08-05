@@ -1,0 +1,11 @@
+city: Berlin
+
+variable: 2m_temperature
+
+start_year: 1950
+end_year: 2026
+
+## Store area as [North, West, South, East]
+area: [53.0, 13.0, 52.5, 13.5]
+
+output_path: data/raw/era5_berlin_t2m.nc
