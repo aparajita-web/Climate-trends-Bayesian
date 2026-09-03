@@ -1,0 +1,17 @@
+Specification,Value
+City,Hanoi
+Variable,2m_temperature
+Latitude,21.05
+Longitude,105.85
+Data Start,1950-01-01
+Data End,2026-07-01
+Training Start,1950-01-01
+Training End,2011-03-01
+Testing Start,2011-04-01
+Testing End,2026-07-01
+Total Observations,919
+Training Observations,735
+Testing Observations,184
+Frequency,Monthly
+Missing Months,0
+Data Completeness,1.00%
