@@ -31,32 +31,22 @@ body,
    Sidebar
 ========================================================== */
 
-section[data-testid="stSidebar"]{
-
-    background:#0F766E;
-}
-
-/* Sidebar text */
-
-section[data-testid="stSidebar"] *{
-
-    color:black;
-}
-
 /* Selectbox */
 
-div[data-baseweb="select"]{
-
-    background:white;
+section[data-testid="stSidebar"] div[data-baseweb="select"] {
+    background-color: white !important;
 }
 
-/* Divider */
-
-hr{
-
-    margin-top:20px;
-    margin-bottom:20px;
+section[data-testid="stSidebar"] div[data-baseweb="select"] input {
+    color: #111827 !important;
 }
 
+section[data-testid="stSidebar"] div[data-baseweb="select"] div {
+    color: #111827 !important;
+}
+
+section[data-testid="stSidebar"] div[data-baseweb="select"] svg {
+    fill: #111827 !important;
+}
 
 
