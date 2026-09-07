@@ -4,7 +4,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-sys.path.append("app_pages/")
+#sys.path.append("app_pages/")
+APP_PAGES = Path(__file__).resolve().parent / "app_pages"
+sys.path.append(str(APP_PAGES))
 import eda
 import prediction as pred
 import bayesian
