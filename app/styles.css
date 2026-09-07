@@ -58,3 +58,11 @@ hr{
     margin-bottom:20px;
 }
 
+[data-testid="stSidebar"] [data-baseweb="select"] {
+    color: #111827 !important;
+}
+
+[data-testid="stSidebar"] [data-baseweb="select"] * {
+    color: #111827 !important;
+}
+
