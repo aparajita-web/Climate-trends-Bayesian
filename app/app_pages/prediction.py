@@ -1,332 +1,297 @@
-from pathlib import Path
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+from pathlib import Path
+import sys
+
+APP_DIR = Path(__file__).resolve().parent.parent
+APP_COMPONENTS = APP_DIR / "app_components"
+sys.path.insert(0, str(APP_COMPONENTS))
+
+from styles import MODEL_COLORS
+from styles import load_css
 
 
-def _metric(df, name):
-    return df.loc[df["Metric"].str.upper() == name.upper(), "Value"].iloc[0]
 
-
-def _read_forecast(plot_dir, filename):
-    path = Path(plot_dir) / filename
-    return pd.read_csv(path) if path.exists() else pd.DataFrame()
-
-
-def _format_date(value):
-    return pd.to_datetime(value).strftime("%B %Y")
-
-
-def _model_card(title, subtitle, value, lower=None, upper=None):
-    interval = ""
-    if lower is not None and upper is not None:
-        interval = f"<div style='color:#6B7280;font-size:14px;margin-top:8px;'>Interval: {lower:.2f} – {upper:.2f} °C</div>"
-
-    st.markdown(
-        f"""
-        <div style="border:1px solid #E5E7EB;border-radius:14px;padding:20px;text-align:center;min-height:190px;">
-            <div style="font-size:14px;color:#6B7280;">{subtitle}</div>
-            <h3 style="margin:8px 0 14px 0;">{title}</h3>
-            <div style="font-size:34px;font-weight:700;">{value:.2f} °C</div>
-            {interval}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def _forecast_value(df):
-    if df.empty:
-        return None, None, None, None
-
-    row = df.iloc[0]
-    prediction = row.get("prediction")
-    lower = row.get("lower")
-    upper = row.get("upper")
-    date = row.get("date", row.get("Forecast Month"))
-
-    return (
-        float(prediction) if pd.notna(prediction) else None,
-        float(lower) if pd.notna(lower) else None,
-        float(upper) if pd.notna(upper) else None,
-        date,
-    )
+MODELS = {
+    "sarima": {
+        "name": "SARIMA",
+        "api": "sarima",
+        "help": "Seasonal ARIMA on the monthly series (statsmodels).",
+        "forecast": "SARIMA_forecast.csv",
+        "metrics": "SARIMA_metrics.csv",
+        "color": MODEL_COLORS["sarima"],
+    },
+    "gb": {
+        "name": "Gradient Boosting",
+        "api": "gradient_boosting",
+        "help": "HistGradientBoostingRegressor using calendar and seasonal features.",
+        "forecast": "gradient_boost_forecast.csv",
+        "metrics": "GradientBoost_metrics.csv",
+        "color": MODEL_COLORS["gb"],
+    },
+    "clim": {
+        "name": "Climatology",
+        "api": "climatology",
+        "help": "A baseline based on the historical August climatology.",
+        "forecast": "climatology_forecast.csv",
+        "metrics": "climatology_metrics.csv",
+        "color": MODEL_COLORS["clim"],
+    },
+}
 
 
 def prediction_page(plot_dir):
-    plot_dir = Path(plot_dir)
+    load_css()
 
-    st.title("Next Month Temperature Prediction")
-    st.write("Compare three forecasting approaches, evaluate their historical performance, and examine the forecast for the next month.")
+    cities = ["Paris", "Berlin", "Kolkata", "Hanoi"]
 
-    # --------------------------------------------------------
-    # DATA & EVALUATION PERIOD
-    # --------------------------------------------------------
+    left, right = st.columns([6, 6], gap="large")
 
-    st.subheader("📊 Data & Evaluation Period")
+    with left:
 
-    dataset_path = plot_dir / "dataset.csv"
-    info_path = plot_dir / "data_info.csv"
+        st.title("Next month's temperature, and how sure we are.")
 
-    dataset = pd.read_csv(dataset_path) if dataset_path.exists() else pd.DataFrame()
-    info = pd.read_csv(info_path) if info_path.exists() else pd.DataFrame()
-
-    info_dict = {}
-    if not info.empty and {"Specification", "Value"}.issubset(info.columns):
-        info_dict = dict(zip(info["Specification"], info["Value"]))
-
-    if not dataset.empty and "date" in dataset.columns:
-        dataset["date"] = pd.to_datetime(dataset["date"])
-        full_start = dataset["date"].min()
-        full_end = dataset["date"].max()
-        total_obs = len(dataset)
-    else:
-        full_start = full_end = None
-        total_obs = None
-
-    test_files = [
-        plot_dir / "climatology_predictions.csv",
-        plot_dir / "gradient_boost_predictions.csv",
-        plot_dir / "SARIMA_predictions.csv",
-    ]
-
-    test_dates = []
-    for path in test_files:
-        if path.exists():
-            temp = pd.read_csv(path)
-            if "date" in temp.columns:
-                test_dates.extend(pd.to_datetime(temp["date"]).tolist())
-
-    if test_dates:
-        test_start = min(test_dates)
-        test_end = max(test_dates)
-        test_obs = len(set(test_dates))
-        train_end = test_start - pd.DateOffset(months=1)
-        train_start = full_start
-        train_obs = len(dataset[dataset["date"] <= train_end]) if not dataset.empty else None
-    else:
-        train_start = train_end = test_start = test_end = None
-        train_obs = test_obs = None
-
-    data_cols = st.columns(4)
-
-    with data_cols[0]:
-        st.markdown(f"**Dataset**  \nERA5")
-        st.markdown(f"**Variable**  \n2 m air temperature (`t2m`)")
-
-    with data_cols[1]:
-        city = info_dict.get("City", "Selected city")
-        lat = info_dict.get("Latitude", "—")
-        lon = info_dict.get("Longitude", "—")
-        st.markdown(f"**Location**  \n{city}")
-        st.markdown(f"**Coordinates**  \n{lat}, {lon}")
-
-    with data_cols[2]:
-        st.markdown(f"**Full period**  \n{full_start:%b %Y} – {full_end:%b %Y}" if full_start is not None else "**Full period**  \n—")
-        st.markdown(f"**Observations**  \n{total_obs:,}" if total_obs is not None else "**Observations**  \n—")
-
-    with data_cols[3]:
-        st.markdown(f"**Training**  \n{train_start:%b %Y} – {train_end:%b %Y}" if train_start is not None else "**Training**  \n—")
-        st.markdown(f"**Testing**  \n{test_start:%b %Y} – {test_end:%b %Y}" if test_start is not None else "**Testing**  \n—")
-
-    st.divider()
-
-    # --------------------------------------------------------
-    # NEXT MONTH FORECAST
-    # --------------------------------------------------------
-
-    st.subheader("🔮 Next Month Forecast")
-
-    climatology_forecast = _read_forecast(plot_dir, "climatology_forecast.csv")
-    gb_forecast = _read_forecast(plot_dir, "gradient_boost_forecast.csv")
-    sarima_forecast = _read_forecast(plot_dir, "SARIMA_forecast.csv")
-
-    c_pred, c_lower, c_upper, forecast_date = _forecast_value(climatology_forecast)
-    g_pred, g_lower, g_upper, _ = _forecast_value(gb_forecast)
-    s_pred, s_lower, s_upper, _ = _forecast_value(sarima_forecast)
-
-    if forecast_date is not None:
-        st.markdown(f"### Forecast for {_format_date(forecast_date)}")
-
-    if all(v is not None for v in [c_pred, g_pred, s_pred]):
-        col1, col2, col3 = st.columns(3, gap="large")
-
-        with col1:
-            _model_card("Climatology", "Baseline", c_pred, c_lower, c_upper)
-
-        with col2:
-            _model_card("Gradient Boost", "Machine Learning", g_pred, g_lower, g_upper)
-
-        with col3:
-            _model_card("SARIMA", "Time-series model", s_pred, s_lower, s_upper)
-
-        # ----------------------------------------------------
-        # FORECAST COMPARISON
-        # ----------------------------------------------------
-
-        st.markdown("### Forecast Comparison")
-
-        comparison_fig = go.Figure()
-        models = ["Climatology", "Gradient Boost", "SARIMA"]
-        predictions = [c_pred, g_pred, s_pred]
-
-        comparison_fig.add_trace(go.Bar(
-            x=models,
-            y=predictions,
-            text=[f"{x:.2f} °C" for x in predictions],
-            textposition="auto",
-            marker_color=["#7A8B8B", "#6F8F8F", "#B08A62"],
-        ))
-
-        comparison_fig.update_layout(
-            yaxis_title="Temperature (°C)",
-            xaxis_title="",
-            showlegend=False,
-            height=400,
-            margin=dict(l=20, r=20, t=20, b=20),
+        st.write(
+            "Pick a city. Decadal forecasts the coming month's mean "
+            "2 m air temperature from 76 years of ERA5 data, interval included."
         )
 
-        st.plotly_chart(comparison_fig, use_container_width=True)
-
-    else:
-        st.warning("Next-month forecast files could not be read.")
-
-    # --------------------------------------------------------
-    # MODEL PERFORMANCE
-    # --------------------------------------------------------
-
-    st.subheader("📈 Model Performance")
-    st.write("Performance evaluated on the historical testing period.")
-
-    climatology_metrics = _read_forecast(plot_dir, "climatology_metrics.csv")
-    gb_metrics = _read_forecast(plot_dir, "GradientBoost_metrics.csv")
-    sarima_metrics = _read_forecast(plot_dir, "SARIMA_metrics.csv")
-
-    if not climatology_metrics.empty and not gb_metrics.empty and not sarima_metrics.empty:
-        metrics_df = pd.DataFrame({
-            "Model": ["Climatology", "Gradient Boost", "SARIMA"],
-            "MAE (°C)": [
-                _metric(climatology_metrics, "MAE"),
-                _metric(gb_metrics, "MAE"),
-                _metric(sarima_metrics, "MAE"),
-            ],
-            "RMSE (°C)": [
-                _metric(climatology_metrics, "RMSE"),
-                _metric(gb_metrics, "RMSE"),
-                _metric(sarima_metrics, "RMSE"),
-            ],
-            "R²": [
-                _metric(climatology_metrics, "R2"),
-                _metric(gb_metrics, "R2"),
-                _metric(sarima_metrics, "R2"),
-            ],
-        })
-
-        st.dataframe(
-            metrics_df,
-            hide_index=True,
-            use_container_width=True,
-            column_config={
-                "MAE (°C)": st.column_config.NumberColumn(format="%.3f °C"),
-                "RMSE (°C)": st.column_config.NumberColumn(format="%.3f °C"),
-                "R²": st.column_config.NumberColumn(format="%.3f"),
-            },
+        city = st.segmented_control(
+            "City",
+            cities,
+            default=st.session_state.get("predict_city", "Paris"),
+            selection_mode="single",
+            width="stretch",
+            key="city_selector"
         )
-    else:
-        st.warning("Model evaluation files could not be read.")
 
-    # --------------------------------------------------------
-    # HISTORICAL PREDICTION EXPLORER
-    # --------------------------------------------------------
+        if city is None:
+            city = "Paris"
 
-    st.subheader("🔍 Historical Prediction Explorer")
-    st.write("Explore how the three models performed during the testing period.")
+        city_dir = plot_dir.parent / city
 
-    prediction_files = {
-        "Climatology": "climatology_predictions.csv",
-        "Gradient Boost": "gradient_boost_predictions.csv",
-        "SARIMA": "SARIMA_predictions.csv",
-    }
+        model_options = list(MODELS.keys())
 
-    predictions = {}
+        model_key = st.segmented_control(
+            "Model",
+            model_options,
+            default="sarima",
+            format_func=lambda x: MODELS[x]["name"],
+            selection_mode="single",
+            width="stretch",)
+            
 
-    for model, filename in prediction_files.items():
-        path = plot_dir / filename
-        if path.exists():
-            df = pd.read_csv(path)
-            df["date"] = pd.to_datetime(df["date"])
-            predictions[model] = df
+        if model_key is None:
+            model_key = "sarima"
 
-    if predictions:
-        common_dates = set.intersection(*[set(df["date"]) for df in predictions.values()])
-        common_dates = sorted(common_dates)
+        model = MODELS[model_key]
 
-        if common_dates:
-            selected_date = st.selectbox(
-                "Select a test month",
-                common_dates,
-                format_func=lambda x: x.strftime("%B %Y"),
+        st.caption(model["help"])
+
+        #st.code(
+         #   f"GET /api/forecast?city={city.lower()}&model={model['api']}"
+        #)
+
+    with right:
+        with st.container(border=True,key="forecast_panel"):
+            dataset_path = city_dir / "dataset.csv"
+
+            if not dataset_path.exists():
+                st.error(f"Dataset not found:\n{dataset_path}")
+                return
+
+            history = pd.read_csv(dataset_path)
+            history["date"] = pd.to_datetime(history["date"])
+            history["actual"] = pd.to_numeric(history["actual"], errors="coerce")
+            history = history.dropna(subset=["date", "actual"]).sort_values("date")
+
+            forecast_path = city_dir / model["forecast"]
+
+            if not forecast_path.exists():
+                st.error(f"Forecast file not found:\n{forecast_path}")
+                return
+
+            forecast = pd.read_csv(forecast_path)
+
+            metrics_path = city_dir / model["metrics"]
+
+            if not metrics_path.exists():
+                st.error(f"Metrics file not found:\n{metrics_path}")
+                return
+
+            metrics = pd.read_csv(metrics_path)
+
+            trend_path = city_dir / "warming_trend_per_decade.csv"
+
+            if not trend_path.exists():
+                st.error(f"Warming trend file not found:\n{trend_path}")
+                return
+
+            trend = pd.read_csv(trend_path)
+
+            forecast_date = history["date"].iloc[-1] + pd.offsets.MonthBegin(1)
+            forecast_value = float(forecast["prediction"].iloc[0])
+            lower = float(forecast["lower"].iloc[0])
+            upper = float(forecast["upper"].iloc[0])
+            forecast_month = forecast_date.strftime("%B %Y")
+
+            mae_rows = metrics[metrics["Metric"].astype(str).str.upper() == "MAE"]
+            mae = float(mae_rows["Value"].iloc[0]) if not mae_rows.empty else float("nan")
+
+            trend_row = trend.iloc[0]
+            trend_value = float(trend_row["Average_Trend"])
+            trend_lower = trend_value - float(trend_row["Average_Minus_Error"])
+            trend_upper = trend_value + float(trend_row["Average_Plus_Error"])
+
+
+            trend_value = (trend["Average_Trend"]).iloc[0]
+            trend_minus = (trend["Average_Minus_Error"]).iloc[0]
+            trend_plus = (trend["Average_Plus_Error"]).iloc[0]
+
+            august_2025 = history[
+                (history["date"].dt.year == 2025)
+                & (history["date"].dt.month == 8)
+                    ]
+
+            observed_2025 = float(august_2025["actual"].iloc[0]) if not august_2025.empty else float("nan")
+
+            august_normal = history[
+                (history["date"].dt.year.between(1991, 2020))
+                & (history["date"].dt.month == 8)
+            ]
+
+            normal = float(august_normal["actual"].mean()) if not august_normal.empty else float("nan")
+
+            model_color = model["color"]
+
+            #st.markdown('<div class="forecast-card">', unsafe_allow_html=True)
+            
+
+            top_left, top_right = st.columns([3, 1])
+
+            with top_left:
+                st.markdown(f'<div class="forecast-month">{forecast_month}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="forecast-where">{city}, the month after the record ends</div>', unsafe_allow_html=True)
+
+            with top_right:
+                st.markdown(
+                    f'<div style="text-align:right;"><span style="color:{model_color};">●</span> {model["name"]}</div>',
+                    unsafe_allow_html=True,
+                )
+
+            st.markdown(
+                f'<div class="forecast-value">{forecast_value:.1f}<span class="forecast-unit">°C</span></div>',
+                unsafe_allow_html=True,
             )
+
+            st.markdown(
+                f'<div class="forecast-interval">{lower:.1f} to {upper:.1f} °C, {model["name"]} prediction interval</div>',
+                unsafe_allow_html=True,
+            )
+
+            hist = history.tail(24)
 
             fig = go.Figure()
 
-            for model, df in predictions.items():
-                row = df[df["date"] == selected_date].iloc[0]
-
-                fig.add_trace(go.Scatter(
-                    x=[selected_date],
-                    y=[row["prediction"]],
-                    mode="markers",
-                    name=model,
-                    marker=dict(size=12),
-                ))
-
-                if pd.notna(row.get("lower")) and pd.notna(row.get("upper")):
-                    fig.add_trace(go.Scatter(
-                        x=[selected_date, selected_date],
-                        y=[row["lower"], row["upper"]],
-                        mode="lines",
-                        name=f"{model} interval",
-                        showlegend=False,
-                    ))
-
-            actual = predictions["Climatology"].loc[
-                predictions["Climatology"]["date"] == selected_date, "actual"
-            ].iloc[0]
-
-            fig.add_trace(go.Scatter(
-                x=[selected_date],
-                y=[actual],
-                mode="markers",
-                name="Actual",
-                marker=dict(size=14, symbol="diamond"),
-            ))
-
-            fig.update_layout(
-                xaxis_title="Date",
-                yaxis_title="Temperature (°C)",
-                height=450,
-                margin=dict(l=20, r=20, t=20, b=20),
+            fig.add_trace(
+                go.Scatter(
+                    x=hist["date"],
+                    y=hist["actual"],
+                    mode="lines",
+                    name="Observed",
+                    line=dict(width=2.5, color="#F6F3EF"),
+                    hovertemplate="%{x|%b %Y}<br>%{y:.1f} °C observed<extra></extra>",
+                )
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            fig.add_trace(
+                go.Scatter(
+                    x=[forecast_date, forecast_date],
+                    y=[lower, upper],
+                    mode="lines",
+                    name="Prediction interval",
+                    line=dict(width=2.5, color=model_color),
+                    hoverinfo="skip",
+                )
+            )
 
-    # --------------------------------------------------------
-    # FORECASTING MODELS
-    # --------------------------------------------------------
+            fig.add_trace(
+                go.Scatter(
+                    x=[forecast_date],
+                    y=[forecast_value],
+                    mode="markers+text",
+                    name="Forecast",
+                    marker=dict(size=11, color=model_color),
+                    text=[f"{forecast_value:.1f} °C"],
+                    textposition="middle right",
+                    textfont=dict(size=12, color="#F4F7FA"),
+                    hovertemplate=f"<b>{forecast_month}</b><br>{forecast_value:.1f} °C forecast<extra></extra>",
+                )
+            )
 
-    st.subheader("🧠 Forecasting Models")
+            fig.add_vrect(
+                x0=hist["date"].iloc[-1],
+                x1=forecast_date + pd.Timedelta(days=20),
+                fillcolor="#E6DEE4",
+                opacity=0.12,
+                line_width=0,
+                layer="below",
+            )
 
-    model_cols = st.columns(3)
+            fig.update_layout(
+                height=214,
+                width=560,
+                margin=dict(l=46, r=66, t=18, b=28),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                showlegend=False,
+                font=dict(family="Geist Mono, monospace", size=11, color="#EEF2FB"),
+                xaxis=dict(showgrid=False, showline=True, linecolor="#E9ECF3", fixedrange=True, tickformat="%b %Y"),
+                yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.10)", zeroline=False, fixedrange=True, title="°C"),
+            )
 
-    with model_cols[0]:
-        st.markdown("### 🌡️ Climatology")
-        st.write("A baseline forecast based on the historical temperature distribution for the corresponding calendar month.")
+            st.markdown('<div class="forecast-chart">', unsafe_allow_html=True)
+            st.plotly_chart(fig, width=560)
 
-    with model_cols[1]:
-        st.markdown("### 📈 Gradient Boosting")
-        st.write("A machine-learning model that learns the relationship between temporal and seasonal features and temperature.")
+            st.markdown(
+                f'<div class="forecast-legend"><span><i class="legend-line"></i>Observed, ERA5, last 24 months</span><span><i class="legend-dot" style="background:{model_color};"></i>Forecast with its interval</span></div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
 
-    with model_cols[2]:
-        st.markdown("### 📊 SARIMA")
-        st.write("A time-series model that captures temporal dependence and seasonal structure in the temperature series.")
+            with col1:
+                st.metric(
+                    "August 2025, observed",
+                    f"{observed_2025:.1f} °C"
+                )
+
+            with col2:
+                st.metric(
+                    "August normal, 1991–2020",
+                    f"{normal:.1f} °C"
+                )
+            #st.markdown("---")
+            st.metric(
+                "Model error on held-out months",
+                f"MAE {mae:.2f} °C"
+            )
+#
+            st.markdown("## Long-term warming")
+
+            st.write(f"{trend_value:.2f} ± {trend_plus:.3f} °C per decade")
+            #st.markdown("---")
+
+    footer_left, footer_right = st.columns([4, 1])
+
+    with footer_left:
+        st.caption(
+            "Built by Aparajita Sen, physicist. "
+            "Data: ERA5 monthly means, Copernicus C3S."
+        )
+
+        with footer_right:
+            st.markdown(
+                "[Source on GitHub](https://github.com/aparajita-web/Climate-trends-Bayesian)"
+            )

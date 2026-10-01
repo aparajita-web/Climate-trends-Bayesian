@@ -1,52 +1,1061 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Geist:wght@400..600&family=Geist+Mono:wght@400..500&display=swap');
 
-/* ==========================================================
-   Global Font
-========================================================== */
+:root{
+
+/* Core Decadal palette */
+
+    --bg:#253147;
+
+    --surface:#e3a5c7;
+
+    --surface-2:#9e4f84;
+
+    --surface-3:#010102;;
+
+    --surface-4:#08020f;
+
+    --ink:#F4F7FA;
+
+    --ink-2:#D7DEED;
+
+    --muted:#A8B2C8;
+
+    --muted-light:#7F8BA7;
+
+    --hair:rgba(255,255,255,.14);
+
+    --hair-strong:rgba(255,255,255,.23);
+
+    --primary:#232F72;
+
+    --blue:#2F578A;
+
+    --teal:#36ADA3;
+
+    --s-clim:#fb0e0e;
+
+    --s-gb:#41f718;
+
+    --s-sarima:#f2ff43;
+
+    --plot-text:#e0eaff;
+
+    --plot-grid:rgba(255,255,255,.12);
+
+    --plot-axis:#8490AB;
+
+    --shadow:0 16px 40px -24px rgba(0,0,0,.65);
+
+}
+
+/* =========================================================
+
+   GLOBAL STREAMLIT SURFACES
+
+   *========================================================= */
 
 html,
+
 body,
-[class*="css"] {
 
-    font-family: "Inter", sans-serif;
+.stApp,
+
+[data-testid="stAppViewContainer"],
+
+[data-testid="stMain"],
+
+section[data-testid="stMain"],
+
+.main,
+
+.main > div[data-testid="stAppViewContainer"] > .main{
+
+    background:var(--bg)!important;
+
+    color:var(--ink)!important;
 
 }
 
-/* ==========================================================
-   Main page
-========================================================== */
+html,body,[class*="stApp"]{
 
-.block-container{
+    font-family:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif!important;
 
-    max-width:1300px;
-
-    padding-top:2rem;
-
-    padding-left:3rem;
-
-    padding-right:3rem;
 }
 
-/* ==========================================================
-   Sidebar
-========================================================== */
+header[data-testid="stHeader"]{
 
-/* Selectbox */
+    background:#142230!important;
 
-section[data-testid="stSidebar"] div[data-baseweb="select"] {
-    background-color: white !important;
 }
 
-section[data-testid="stSidebar"] div[data-baseweb="select"] input {
-    color: #111827 !important;
+#MainMenu,
+
+footer[data-testid="stFooter"]{
+
+    visibility:hidden;
+
 }
 
-section[data-testid="stSidebar"] div[data-baseweb="select"] div {
-    color: #111827 !important;
+.block-container,
+
+.main .block-container{
+
+    max-width:1180px!important;
+
+    margin:0 auto!important;
+
+    padding-top:.6rem!important;
+
+    padding-bottom:36px!important;
+
 }
 
-section[data-testid="stSidebar"] div[data-baseweb="select"] svg {
-    fill: #111827 !important;
+h1,h2,h3{
+
+    font-family:"Bricolage Grotesque","Geist",system-ui,sans-serif!important;
+
+    color:var(--ink)!important;
+
+    font-weight:600!important;
+
+    letter-spacing:-.025em!important;
+
+}
+
+h1{font-size:clamp(30px,3vw,40px)!important;line-height:1.08!important}
+
+h2{font-size:28px!important;line-height:1.15!important}
+
+h3{font-size:20px!important;line-height:1.2!important}
+
+p,
+
+[data-testid="stCaptionContainer"] p{
+
+    font-family:"Geist",sans-serif!important;
+
+    color:var(--ink-2)!important;
+
+}
+
+[data-testid="stCaptionContainer"] p{
+
+    color:var(--muted)!important;
+
+}
+
+/* =========================================================
+
+   STICKY TOP NAV
+
+   *========================================================= */
+
+div[data-testid="stHorizontalBlock"]:has(.decadal-brand){
+
+    position:sticky!important;
+
+    top:0!important;
+
+    z-index:9999!important;
+
+    background: #142230!important;
+
+    backdrop-filter:blur(12px);
+    width: 100vw !important;
+    max-width: 100vw !important;
+
+ 
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+
+    padding:9px 0 8px!important;
+
+
+
+    border-bottom:1px solid var(--hair)!important;
+
+}
+
+.decadal-brand{
+
+    height:42px;
+
+    display:flex;
+
+    align-items:center;
+
+    font-family:"Bricolage Grotesque",sans-serif;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    letter-spacing:-.03em;
+    transform: translateX(80px);
+
+    color:#F4F7FA;
+
+}
+
+.decadal-nav{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+}
+
+.decadal-nav div[data-testid="stRadio"]{
+
+    width:100%;
+
+    margin:0!important;
+
+}
+
+.decadal-nav div[data-testid="stRadio"] > label{
+
+    display:none!important;
+
+}
+
+.decadal-nav div[data-testid="stRadio"] > div,
+
+.decadal-nav div[data-testid="stRadio"] div[role="radiogroup"]{
+
+    width:100%;
+
+    display:flex!important;
+
+    justify-content:flex-end!important;
+
+    align-items:center!important;
+
+    gap:1px!important;
+
+    background:transparent!important;
+
+}
+
+.decadal-nav div[data-testid="stRadio"] label{
+
+    display:flex!important;
+
+    align-items:center!important;
+
+    justify-content:center!important;
+
+    position:relative!important;
+
+    flex:0 0 auto!important;
+
+    min-height:40px!important;
+
+    padding:7px 15px 10px!important;
+
+    border-radius:0!important;
+
+    background:transparent!important;
+
+    color:#A8B2C8!important;
+
+    font-family:"Geist",sans-serif!important;
+
+    font-size:14px!important;
+
+    font-weight:500!important;
+
+}
+
+.decadal-nav div[data-testid="stRadio"] label:hover{
+
+    color:#F4F7FA!important;
+
+    background:transparent!important;
+
+}
+
+.decadal-nav div[data-testid="stRadio"] label:has(input:checked){
+
+    color:#F4F7FA!important;
+
+    font-weight:600!important;
+
+}
+
+.decadal-nav div[data-testid="stRadio"] label:has(input:checked)::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:5px;
+
+    right:5px;
+
+    bottom:1px;
+
+    height:2px;
+
+    border-radius:2px;
+
+    background:var(--teal);
+
+}
+
+.decadal-rule{
+
+    display:none;
+
+}
+
+/* =========================================================
+
+   FORM CONTROLS
+
+   *========================================================= */
+
+/* =========================================================
+   FORM CONTROLS
+   ========================================================= */
+
+
+
+.st-key-predict_city_selector
+button[data-testid="stBaseButton-segmented_control"] {
+    background: #08020f !important;
+    color: var(--ink-2) !important;
+}
+
+.st-key-predict_city_selector
+button[data-testid="stBaseButton-segmented_controlActive"] {
+    background: #78DDD4 !important;
+    color: #FFFFFF !important;
+}
+/* =========================================================
+
+   MAIN FEATURE CARDS
+
+   *========================================================= */
+
+/* =========================================================
+   MAIN FEATURE CARDS
+   ========================================================= */
+
+.forecast-card,
+.decadal-card{
+    background:var(--surface-4) !important;
+    border:1px solid var(--hair) !important;
+    border-radius:15px !important;
+    padding:24px 26px 22px !important;
+    box-shadow:var(--shadow) !important;
+    min-width:0;
+    font-family:"Bricolage Grotesque",sans-serif !important;
+}
+
+.stripes-panel{
+    /* background:linear-gradient(145deg,#2F578A 0%,#263F70 100%) !important; */
+    background:var(--surface-4) !important;
+    border:1px solid var(--hair) !important;
+    border-radius:15px !important;
+    padding:18px 20px 16px !important;
+    box-shadow:var(--shadow) !important;
+    font-family:"Bricolage Grotesque",sans-serif !important;
+}
+
+.forecast-month,
+.decadal-month{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:-.02em;
+    line-height:1.15;
+    color:var(--ink);
+}
+
+.forecast-where,
+.decadal-where{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:13px;
+    line-height:1.45;
+    color:var(--ink-2);
+    margin-top:4px;
+}
+
+.decadal-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#192066;
+    border:1px solid var(--hair);
+    border-radius:999px;
+    padding:5px 11px 5px 9px;
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:13px;
+    font-weight:500;
+    color:var(--ink);
+    white-space:nowrap;
+}
+
+.decadal-chip-dot,
+.legend-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    display:inline-block;
+    flex:0 0 auto;
+}
+
+.decadal-chip-dot.sarima,
+.legend-dot.sarima{
+    background:var(--s-sarima);
+}
+
+.decadal-chip-dot.gb,
+.legend-dot.gb{
+    background:var(--s-gb);
+}
+
+.decadal-chip-dot.clim,
+.legend-dot.clim{
+    background:var(--s-clim);
+}
+
+.forecast-value,
+.decadal-hero-value{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:58px;
+    font-weight:600;
+    letter-spacing:-.035em;
+    line-height:1;
+    color:#FFFFFF;
+    margin-top:22px;
+    font-variant-numeric:tabular-nums;
+}
+
+.forecast-unit{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:22px;
+    color:var(--ink-2);
+    font-weight:500;
+    margin-left:5px;
+}
+
+.forecast-interval,
+.decadal-interval{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:14px;
+    line-height:1.45;
+    color:var(--ink-2);
+    margin-top:8px;
+}
+
+/* =========================================================
+   FORECAST SUPPORTING ELEMENTS
+   ========================================================= */
+
+.forecast-legend,
+.decadal-legend{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-top:10px;
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:12.5px;
+    line-height:1.4;
+    color:var(--ink-2);
+}
+
+.forecast-legend span,
+.decadal-legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:"Bricolage Grotesque",sans-serif !important;
+}
+
+.legend-line{
+    width:16px;
+    height:2px;
+    border-radius:1px;
+    background:#D7DEED;
+    display:inline-block;
+}
+
+.forecast-context,
+.decadal-context{
+    margin-top:18px;
+    border-top:1px solid var(--hair);
+}
+
+.forecast-context-row,
+.context-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    padding:10px 0;
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:14px;
+    line-height:1.45;
+}
+
+.forecast-context-row + .forecast-context-row,
+.context-row + .context-row{
+    border-top:1px solid var(--hair);
+}
+
+.context-row:last-child{
+    border-bottom:1px solid var(--hair);
+}
+
+.forecast-context-label,
+.context-row span{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    color:var(--ink-2);
+}
+
+.forecast-context-value,
+.context-row strong{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    color:#FFFFFF;
+    font-weight:500;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+}
+
+.forecast-context-row small,
+.context-row small{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    color:var(--muted);
+}
+
+.forecast-more{
+    margin-top:6px;
+    padding-top:14px;
+    border-top:1px solid var(--hair);
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:14px;
+    line-height:1.45;
+    color:var(--ink-2);
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.forecast-more a{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    color:var(--teal);
+    text-decoration:none;
+}
+
+.forecast-more a:hover{
+    color:#78DDD4;
+}
+
+.forecast-metrics{
+    margin-top:18px;
+    border-top:1px solid var(--hair);
+}
+
+.forecast-metric-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    padding:11px 0;
+    border-bottom:1px solid var(--hair);
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    font-size:14px;
+    line-height:1.45;
+}
+
+.forecast-metric-row span{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    color:var(--ink-2);
+}
+
+.forecast-metric-row strong{
+    font-family:"Bricolage Grotesque",sans-serif !important;
+    color:#FFFFFF;
+    font-weight:500;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+}
+/* =========================================================
+
+   METRICS / TABLES
+
+   *========================================================= */
+
+[data-testid="stMetric"]{
+
+    background:transparent;
+
+    padding:0;
+
+}
+
+[data-testid="stMetricLabel"]{
+
+    font-size:13px!important;
+
+    color:var(--ink-2)!important;
+
+}
+
+[data-testid="stMetricValue"]{
+
+    font-size:22px!important;
+
+    font-weight:500!important;
+
+    color:#FFFFFF!important;
+
+}
+
+[data-testid="stDataFrame"]{
+
+    border:1px solid var(--hair)!important;
+
+    border-radius:9px!important;
+
+    overflow:hidden;
+
+}
+
+/* =========================================================
+
+   ANALYSIS / CODE / PIPELINE
+
+   *========================================================= */
+
+.eq{
+
+    margin:12px 0 4px;
+
+    padding:12px 14px;
+
+    border-radius:9px;
+
+    background:var(--surface-4)!important;
+
+    border:1px solid var(--hair);
+
+    color:var(--ink-2);
+
+    font-family:"Geist Mono",monospace;
+
+    font-size:13px;
+
+    line-height:1.7;
+
+    overflow-x:auto;
+
+}
+
+pre{
+
+    background:var(--surface-4)!important;
+
+    color:var(--ink-2)!important;
+
+    border:1px solid var(--hair)!important;
+
+}
+
+.diag{
+
+    display:flex;
+
+    gap:22px;
+
+    margin-top:14px;
+
+    padding-top:14px;
+
+    border-top:1px solid var(--hair);
+
+    flex-wrap:wrap;
+
+}
+
+.diag .v{font-size:20px;font-weight:600;color:#FFFFFF}
+
+.diag .l{font-size:12px;color:var(--ink-2);margin-top:2px}
+
+.pill.good{
+
+    background:rgba(54,173,163,.18);
+
+    color:#78DDD4;
+
+}
+
+.note{
+
+    font-size:12.5px;
+
+    color:var(--muted);
+
+    margin-top:12px;
+
+}
+
+.pipe{
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:14px;
+
+    margin-top:16px;
+
+}
+
+.pipe .step{
+
+    padding-top:12px;
+
+    border-top:2px solid var(--hair);
+
+}
+
+.pipe .step:first-child{
+
+    border-top-color:var(--teal);
+
+}
+
+.pipe h3{font-size:15px}
+
+.pipe .lib{
+
+    font-family:"Geist Mono",monospace;
+
+    font-size:11.5px;
+
+    color:var(--muted);
+
+    margin-top:2px;
+
+}
+
+.pipe p{
+
+    font-size:13px;
+
+    color:var(--ink-2);
+
+    margin-top:8px;
+
+}
+
+/* =========================================================
+
+   STREAMLIT MESSAGES
+
+   *========================================================= */
+
+div[data-testid="stAlert"]{
+
+    background:var(--surface-3)!important;
+
+    border:1px solid var(--hair)!important;
+
+    color:var(--ink-2)!important;
+
+}
+
+div[data-testid="stInfo"]{
+
+    background:rgba(47,87,138,.28)!important;
+
+}
+
+div[data-testid="stWarning"]{
+
+    background:rgba(123,134,161,.18)!important;
+
+}
+
+/* =========================================================
+
+   FOOTER
+
+   *========================================================= */
+
+.decadal-footer{
+
+    border-top:1px solid var(--hair);
+
+    margin-top:48px;
+
+    padding:22px 0 26px;
+
+    color:var(--muted);
+
+    font-size:13px;
+
+}
+
+.decadal-footer a{
+
+    color:var(--teal);
+
+}
+
+/* =========================================================
+
+   RESPONSIVE
+
+   *========================================================= */
+
+@media(max-width:900px){
+
+    .main .block-container{
+
+        padding-left:24px!important;
+
+        padding-right:24px!important;
+
+    }
+
+    .decadal-nav div[data-testid="stRadio"] label{
+
+        padding-left:9px!important;
+
+        padding-right:9px!important;
+
+    }
+
+    .forecast-card,
+
+    .decadal-card{
+
+        padding:20px 18px 18px!important;
+
+    }
+
+    .pipe{grid-template-columns:repeat(2,1fr)}
+
+}
+
+@media(max-width:640px){
+
+    .main .block-container{
+
+        padding-left:16px!important;
+
+        padding-right:16px!important;
+
+    }
+
+    .decadal-brand{font-size:20px}
+
+    .decadal-nav div[data-testid="stRadio"] label{
+
+        font-size:12px!important;
+
+        padding-left:6px!important;
+
+        padding-right:6px!important;
+
+    }
+
+    .forecast-value,
+
+    .decadal-hero-value{
+
+        font-size:48px;
+
+    }
+
+    .forecast-context-row,
+
+    .context-row{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        gap:3px;
+
+    }
+
+    .pipe{grid-template-columns:1fr}
+
+}
+
+/* forecast panel marke */
+
+
+.st-key-forecast_panel{
+    background:var(--surface-3) !important;
+    border-radius:15px !important;
+    padding:24px 26px 22px !important;
+    box-shadow:var(--shadow) !important;
+    box-sizing:border-box !important;
 }
 
 
+/* =========================================================
+
+   TOP NAVIGATION
+
+   *========================================================= */
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+
+    background: transparent !important;
+
+    border: none !important;
+
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    color: #A8B2C8 !important;
+
+    font-family: 'Geist', sans-serif !important;
+
+    font-size: 15px !important;
+
+    font-weight: 500 !important;
+
+    padding: 6px 0 10px 0 !important;
+
+    min-height: 0 !important;
+
+}
+
+
+
+/* Active navigation item */
+
+div[data-testid="stColumn"]:has(.nav-active) button[kind="secondary"] {
+
+    color: #F4D35E !important;
+
+    font-weight: 600 !important;
+
+}
+
+
+
+/* Hover */
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"]:hover {
+
+    background: transparent !important;
+
+    color: #F4F7FA !important;
+
+}
+
+
+
+/* Remove focus styling */
+
+div[data-testid="stHorizontalBlock"] button[kind="secondary"]:focus {
+
+    background: transparent !important;
+
+    border: none !important;
+
+    box-shadow: none !important;
+
+    outline: none !important;
+
+}
+/* =========================================================
+   ANALYSIS SECTION CARDS
+   ========================================================= */
+
+.st-key-analysis_warming_stripes,
+.st-key-analysis_record,
+.st-key-analysis_bayesian,
+.st-key-analysis_forecast,
+.st-key-analysis_performance,
+.st-key-analysis_data,
+.st-key-analysis_pipeline {
+    background: var(--surface-3) !important;
+    border: 1px solid var(--hair) !important;
+    border-radius: 15px !important;
+    padding: 24px 26px 22px !important;
+    box-shadow: var(--shadow) !important;
+    box-sizing: border-box !important;
+}
+
+.st-key-analysis_stripes {
+    background: #08050e !important;
+    border: 1px solid rgba(255,255,255,0.20) !important;
+    border-radius: 15px !important;
+    padding: 24px 26px 22px !important;
+    box-shadow: 0 16px 40px -24px rgba(0,0,0,.65) !important;
+    box-sizing: border-box !important;
+}
+/* ######################################################### */
+/* The city selector theme */
+
+
+/* =========================================================
+   CITY SELECTOR
+   ========================================================= */
+
+.st-key-city_selector [data-baseweb="button-group"] {
+    background: #000000 !important;
+    border: 1px solid #000000 !important;
+}
+
+/* All unselected cities */
+
+.st-key-city_selector [data-baseweb="button-group"] button {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    border-color: #000000 !important;
+
+    font-family: "Bricolage Grotesque", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+
+    box-shadow: none !important;
+}
+
+/* Selected city */
+
+.st-key-city_selector
+[data-baseweb="button-group"]
+button[kind="segmented_controlActive"] {
+    background-color: #E6E6FA !important;
+    color: #000000 !important;
+    border-color: #E6E6FA !important;
+
+    box-shadow: none !important;
+}
+
+/* Hover */
+
+.st-key-city_selector
+[data-baseweb="button-group"]
+button:hover {
+    background-color: #E6E6FA !important;
+    color: #000000 !important;
+}
+
+/* Focus */
+
+.st-key-city_selector
+[data-baseweb="button-group"]
+button:focus,
+.st-key-city_selector
+[data-baseweb="button-group"]
+button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}

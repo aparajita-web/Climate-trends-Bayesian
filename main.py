@@ -538,13 +538,13 @@ def main():
             .max(dim="valid_time")
         )
 
-        anual_max = t2m_annual_max.values
+        annual_max = t2m_annual_max.values
 
         run_name_max = "ModelA_max_temp"
 
         modA.run_Bayesian(
             time_norm,
-            t2m_annual_max,
+            annual_max,
             dir_name,
             run_name_max
         )
